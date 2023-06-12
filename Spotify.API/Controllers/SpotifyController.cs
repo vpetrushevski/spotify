@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Spotify.API.Extensions;
 using Spotify.Application.Services.Interface;
+using Spotify.DTO.Request;
 using Spotify.DTO.Response;
 using System.ComponentModel.DataAnnotations;
 
@@ -19,15 +20,15 @@ namespace Spotify.API.Controllers
         }
 
         /// <summary>
-        /// Get artist details
+        /// Get artists
         /// </summary>
-        [HttpGet("artist/details")]
-        [ProducesResponseType(typeof(ApiResponse<ArtistResponse>), 200)]
-        public async Task<IActionResult> GetArtists()
+        [HttpPost("artist/paged")]
+        [ProducesResponseType(typeof(ApiResponse<List<ArtistResponse>>), 200)]
+        public async Task<IActionResult> GetArtists([FromBody] ArtistPagedRequest request)
         {
             try
             {
-                return this.SuccessResponse(await _spotifyService.GetArtists());
+                return this.SuccessResponse(await _spotifyService.GetArtists(request));
             }
             catch (Exception ex)
             {

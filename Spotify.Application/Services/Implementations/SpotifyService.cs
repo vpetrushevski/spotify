@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Spotify.Application.Services.Interface;
 using Spotify.DTO.Configuration;
+using Spotify.DTO.Request;
 using Spotify.DTO.Response;
 using System;
 using System.Collections.Generic;
@@ -21,12 +22,12 @@ namespace Spotify.Application.Services.Implementations
             _spotifyConfig = spotifyConfig;
         }
 
-        public async Task<ArtistResponse> GetArtists()
+        public async Task<List<ArtistResponse>> GetArtists(ArtistPagedRequest request)
         {
             string accessToken = await _authService.GetSpotifyAccessToken();
 
-            //string dataUrl = _spotifyConfig.ApiDataUrl + "artist";
-            string dataUrl = $"{_spotifyConfig.ApiDataUrl}artists/0TnOYISbd1XYRBk9myaseg";
+            int offset = (request.pageNumber * request.pageSize) - request.pageSize;
+            string dataUrl = $"{_spotifyConfig.ApiDataUrl}search?query=ArtistName&type=artist&offset={offset}&limit={request.pageSize}";
 
             HttpClient client = new HttpClient();
 
@@ -41,7 +42,9 @@ namespace Spotify.Application.Services.Implementations
             };
 
             var response = await client.SendAsync(requestMessage);
-            return JsonConvert.DeserializeObject<ArtistResponse>(await response.Content.ReadAsStringAsync());
+            ArtistPagedResponse artistsResponse = JsonConvert.DeserializeObject<ArtistPagedResponse>(await response.Content.ReadAsStringAsync());
+
+            return artistsResponse.artists.items;
         }
     }
 }
