@@ -20,6 +20,23 @@ namespace Spotify.API.Controllers
         }
 
         /// <summary>
+        /// Get artist details
+        /// </summary>
+        [HttpGet("artist/{id}")]
+        [ProducesResponseType(typeof(ApiResponse<List<ArtistResponse>>), 200)]
+        public async Task<IActionResult> GetArtistDetails(string id)
+        {
+            try
+            {
+                return this.SuccessResponse(await _spotifyService.GetArtistDetails(id));
+            }
+            catch (Exception ex)
+            {
+                return this.FailResponse(ex);
+            }
+        }
+
+        /// <summary>
         /// Get artists
         /// </summary>
         [HttpPost("artist/paged")]

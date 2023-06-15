@@ -27,7 +27,7 @@ namespace Spotify.Application.Services.Implementations
             string accessToken = await _authService.GetSpotifyAccessToken();
 
             int offset = (request.pageNumber * request.pageSize) - request.pageSize;
-            string dataUrl = $"{_spotifyConfig.ApiDataUrl}search?query=ArtistName&type=artist&offset={offset}&limit={request.pageSize}";
+            string dataUrl = $"{_spotifyConfig.ApiDataUrl}search?q=ArtistName&type=artist&offset={offset}&limit={request.pageSize}";
 
             HttpClient client = new HttpClient();
 
@@ -45,6 +45,34 @@ namespace Spotify.Application.Services.Implementations
             ArtistPagedResponse artistsResponse = JsonConvert.DeserializeObject<ArtistPagedResponse>(await response.Content.ReadAsStringAsync());
 
             return artistsResponse.artists.items;
+        }
+
+        public async Task<ArtistResponse> GetArtistDetails(string id)
+        {
+            string accessToken = await _authService.GetSpotifyAccessToken();
+            string dataUrl = $"{_spotifyConfig.ApiDataUrl}artists/{id}";
+
+            HttpClient client = new HttpClient();
+
+            HttpRequestMessage requestMessage = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri(dataUrl),
+                Headers =
+                {
+                    {  "Authorization", $"Bearer {accessToken}" }
+                }
+            };
+
+            var response = await client.SendAsync(requestMessage);
+            if (response.IsSuccessStatusCode)
+            {
+                ArtistResponse artistsResponse = JsonConvert.DeserializeObject<ArtistResponse>(await response.Content.ReadAsStringAsync());
+
+                return artistsResponse;
+            }
+
+            throw new Exception("unathorized request");
         }
     }
 }
